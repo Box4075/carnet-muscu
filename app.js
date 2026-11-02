@@ -1,5 +1,5 @@
 /* Carnet Muscu — appli web installable, données stockées sur le téléphone (localStorage). */
-const APP_VERSION = "1.2.1";
+const APP_VERSION = "1.3.0";
 const KEY = "carnet-muscu-v1";
 const $ = s => document.querySelector(s);
 const el = (tag, props = {}, ...kids) => {
@@ -23,6 +23,8 @@ const fmtNum = v => (Math.round(v * 10) / 10).toLocaleString("fr-FR");
 const num = v => { if (v === "" || v == null) return null; const n = parseFloat(String(v).replace(",", ".")); return isFinite(n) ? n : null; };
 const fmtTime = s => `${Math.floor(s / 60)}:${pad(Math.max(0, s % 60))}`;
 const topOf = r => parseInt(String(r).split("-").pop(), 10);
+const targetTxt = (x, unit) => unit === "min" ? `${x.r} min` : x.top ? `1 × ${x.r} + ${x.s - 1} × ${x.bo}` : `${x.s} × ${x.r}${unit === "s" ? " s" : ""}`;
+const backoffKg = kg => Math.round(kg * 0.87 / 2.5) * 2.5;
 
 /* ---------- état ---------- */
 let S = load();
@@ -189,7 +191,7 @@ function exCard(slot, i) {
     E.img ? thumb(E, "thumb") : el("div", {class: "ex-num", text: i + 1}),
     el("div", {class: "ex-title"}, el("div", {class: "ex-name", text: E.n}), el("div", {class: "ex-machine", text: E.m}),
       tags.length ? el("div", {class: "row", style: "margin-top:4px"}, tags) : null),
-    el("div", {class: "ex-target num"}, unit === "min" ? `${slot.r} min` : `${slot.s} × ${slot.r}${unit === "s" ? " s" : ""}`,
+    el("div", {class: "ex-target num"}, targetTxt(slot, unit),
       slot.rest ? el("small", {text: `repos ${fmtTime(slot.rest)}`}) : null)));
   if (slot.note) card.append(el("div", {class: "ex-note", text: slot.note}));
 
@@ -198,7 +200,9 @@ function exCard(slot, i) {
     const lastRow = el("div", {class: "last"});
     if (last) {
       lastRow.append(el("span", {class: "num", text: `${fmtShort(last.date)} : ${setTxt(last.sets, unit)}`}));
-      if (last.sets.length >= slot.s && last.sets.every(s => (num(s.reps) || 0) >= topOf(slot.r)))
+      if (slot.top) {
+        if ((num(last.sets[0].reps) || 0) >= topOf(slot.r)) lastRow.append(el("span", {class: "chip up", text: "↑ Monte le top set"}));
+      } else if (last.sets.length >= slot.s && last.sets.every(s => (num(s.reps) || 0) >= topOf(slot.r)))
         lastRow.append(el("span", {class: "chip up", text: unit === "s" ? "↑ Tiens plus longtemps" : "↑ Monte la charge"}));
       lastRow.append(el("button", {class: "btn sm ghost", text: "Reprendre", onclick: () => {
         const cur = getItem(UI.date, UI.jour, slot, true); cur.ex = exId;
@@ -224,7 +228,10 @@ function exCard(slot, i) {
     ok.onclick = () => {
       const cur = getItem(UI.date, UI.jour, slot, true); cur.ex = exId;
       const s = cur.sets[si];
-      if (!s.ok && num(s.reps) == null && ph && ph.reps) { s.reps = ph.reps; if (!num(s.kg) && ph.kg) s.kg = ph.kg; }
+      if (!s.ok) {
+        if (num(s.reps) == null && ph && ph.reps) s.reps = ph.reps;
+        if (!num(s.kg)) { const kp = num((document.getElementById(`${slot.id}-${si}-kg`) || {}).placeholder); if (kp) s.kg = String(kp); }
+      }
       s.ok = !s.ok; save();
       if (s.ok) {
         const lastSetOfSS = !slot.ss || !PROGRAMME[UI.jour].ex.some((x, k) => k > PROGRAMME[UI.jour].ex.indexOf(slot) && x.ss === slot.ss);
@@ -233,9 +240,20 @@ function exCard(slot, i) {
       render(true);
     };
     if (unit === "min") sets.append(el("div", {class: "set single"}, el("span", {class: "n", text: si + 1}), mk("reps", "min", "numeric", slot.r), ok));
-    else sets.append(el("div", {class: "set"}, el("span", {class: "n", text: si + 1}),
-      mk("kg", "kg", "decimal", ph && num(ph.kg) ? fmtNum(num(ph.kg)) : ""), el("span", {class: "x", text: "×"}),
-      mk("reps", unit === "s" ? "sec" : "reps", "numeric", ph && ph.reps ? ph.reps : ""), ok));
+    else {
+      const lbl = slot.top ? (si === 0 ? "TOP" : `B${si}`) : String(si + 1);
+      let phKg = ph && num(ph.kg) ? fmtNum(num(ph.kg)) : "";
+      if (slot.top && si > 0 && !phKg) { const t = num(rows[0].kg) || (last && num(last.sets[0].kg)); if (t) phKg = fmtNum(backoffKg(t)); }
+      const kgBox = mk("kg", "kg", "decimal", phKg);
+      if (slot.top && si === 0) {
+        const inp = kgBox.querySelector("input"), prev = inp.oninput;
+        inp.oninput = () => { prev(); const t = num(inp.value); if (!t) return;
+          for (let k = 1; k < rows.length; k++) { const b = document.getElementById(`${slot.id}-${k}-kg`); if (b && !b.value && !(last && last.sets[k] && num(last.sets[k].kg))) b.placeholder = fmtNum(backoffKg(t)); } };
+      }
+      sets.append(el("div", {class: "set" + (slot.top && si === 0 ? " top" : "")}, el("span", {class: "n", text: lbl}),
+      kgBox, el("span", {class: "x", text: "×"}),
+      mk("reps", unit === "s" ? "sec" : "reps", "numeric", ph && ph.reps ? ph.reps : (slot.top ? (si === 0 ? slot.r : slot.bo) : "")), ok));
+    }
   });
   card.append(sets);
 
@@ -287,7 +305,9 @@ function viewProgramme() {
       el("li", {}, el("b", {text: "Genou : "}), "douleur max 3/10 pendant et le lendemain. Au-dessus, réduis l'amplitude ou remplace. Pas de fentes pour l'instant."),
       el("li", {}, el("b", {text: "Épaule : "}), "raideur à l'arrière au développé couché → prise un peu plus serrée, pause sur la poitrine, ou version machine."),
       el("li", {}, el("b", {text: "Décharge : "}), "toutes les 6-8 semaines, une semaine à la moitié des séries."),
-      el("li", {}, el("b", {text: "Supersets : "}), "le vendredi, enchaîne les 2 exos du même numéro, puis repos.")
+      el("li", {}, el("b", {text: "Supersets : "}), "le vendredi, enchaîne les 2 exos du même numéro, puis repos."),
+      el("li", {}, el("b", {text: "Top set / back-off : "}), "monte par paliers jusqu'à 1 série lourde (TOP, 1-2 reps en réserve), puis 2 séries à −10-15 % (B1, B2). L'appli calcule la charge des back-off. Quand le top set atteint le haut de sa fourchette, monte-le."),
+      el("li", {}, el("b", {text: "Volume : "}), "~10 séries max par muscle et par séance. Au-delà, c'est de la fatigue, pas du muscle.")
     )));
   [1, 2, 3, 4, 5].forEach(j => {
     const P = PROGRAMME[j];
@@ -298,7 +318,7 @@ function viewProgramme() {
       const E = EX[x.id];
       c.append(el("div", {class: "prog-ex"},
         el("span", {class: "row", style: "flex-wrap:nowrap;gap:10px"}, E.img ? thumb(E, "thumb sm") : el("span", {class: "thumb sm noimg"}), el("span", {}, E.n), x.kine ? el("span", {class: "chip warn", style: "margin-left:6px", text: "kiné"}) : null, x.ss ? el("span", {class: "chip info", style: "margin-left:6px", text: `SS${x.ss}`}) : null),
-        el("span", {class: "num muted", text: E.unit === "min" ? `${x.r} min` : `${x.s} × ${x.r}${E.unit === "s" ? " s" : ""}`}),
+        el("span", {class: "num muted", text: targetTxt(x, E.unit)}),
         x.alts ? el("span", {class: "alt", text: "ou " + x.alts.map(a => EX[a].n).join(", ")}) : null));
     });
     const btn = el("button", {class: "btn sm", text: "Faire cette séance aujourd'hui", onclick: () => { UI.date = todayISO(); UI.jour = j; show("seance"); }});

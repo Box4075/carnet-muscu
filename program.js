@@ -59,65 +59,63 @@ const EX = {
   tri_poulie:  {n:"Extension triceps poulie haute", m:"Poulie + barre ou corde", q:"triceps pushdown", img:"https://webapi-prod.technogym.com/dw/image/v2/BFLQ_PRD/on/demandware.static/-/Sites-tg-catalog-master/default/dw9bd0e705/product/MQ0F/MQ0F_gallery01.jpg?sw=640&q=75"}
 };
 
-/* s = séries, r = fourchette, rest = repos en secondes, ss = superset, kine = à valider avec le kiné */
+/* s = séries, r = fourchette, rest = repos (s), ss = superset, kine = avis kiné.
+   top:true = 1 top set (fourchette r, 1-2 reps de l'échec) + (s-1) back-off à −10-15 % (fourchette bo).
+   Volume : ~10 séries max par muscle et par séance, ~21-24 séries par séance (~1 h 15). */
 const PROGRAMME = {
   1: { code:"A", titre:"Jambes", sous:"Ischios & fessiers", ex:[
     {id:"velo", s:1, r:"5-10", rest:0, note:"Puis tes exos d'activation du kiné."},
-    {id:"rdl", s:4, r:"6-8", rest:150, note:"Dos neutre, descends à mi-tibia. Exo lourd de la séance : 1-2 reps en réserve."},
+    {id:"rdl", s:3, r:"6-8", rest:150, note:"Séries classiques, 2 reps en réserve : on reconstruit le dos, pas de top set pour l'instant."},
     {id:"lc_assis", s:3, r:"10-12", rest:90, alts:["lc_allonge","lc_genou"], note:"La meilleure version pour la masse des ischios."},
-    {id:"hip_hs", s:4, r:"8-10", rest:120, alts:["hip_tg"], note:"Pause 1 s en haut, fessiers serrés."},
-    {id:"lc_genou", s:3, r:"10-12", rest:75, alts:["lc_allonge"]},
-    {id:"add", s:3, r:"12-15", rest:75},
-    {id:"abd", s:3, r:"15-20", rest:60, alts:["abd_debout"], note:"Le moyen fessier stabilise ton genou."},
-    {id:"mollet_debout", s:4, r:"10-15", rest:75, alts:["mollet_smith"], note:"Pause 2 s en bas, étiré."},
-    {id:"crunch_m", s:3, r:"12-15", rest:60, alts:["crunch_hs","crunch_p"]},
-    {id:"releves", s:3, r:"10-15", rest:60, alts:["crunch_p"], note:"Poids du corps : laisse kg vide. Genoux vers la poitrine si jambes tendues trop dur. Pas de balancier."}
+    {id:"hip_hs", s:3, r:"6-8", bo:"10-12", top:true, rest:150, alts:["hip_tg"], note:"Top set lourd, pause 1 s en haut. Puis 2 back-off à −10-15 %."},
+    {id:"lc_genou", s:2, r:"10-12", rest:75, alts:["lc_allonge"]},
+    {id:"add", s:2, r:"12-15", rest:60},
+    {id:"abd", s:2, r:"15-20", rest:60, alts:["abd_debout"], note:"Le moyen fessier stabilise ton genou."},
+    {id:"mollet_debout", s:3, r:"10-15", rest:60, alts:["mollet_smith"], note:"Pause 2 s en bas, étiré."},
+    {id:"releves", s:3, r:"10-15", rest:60, alts:["crunch_hs","crunch_p"], note:"Poids du corps : laisse kg vide. Genoux vers la poitrine si jambes tendues trop dur. Pas de balancier."}
   ]},
   2: { code:"B", titre:"Dos & biceps", sous:"Largeur, épaisseur, arrière d'épaule", ex:[
     {id:"velo", s:1, r:"5", rest:0},
-    {id:"lat_hs", s:4, r:"6-10", rest:120, alts:["tractions","lat_poulie"], note:"Tire avec les coudes, pas avec les mains."},
-    {id:"row_iso", s:4, r:"8-10", rest:120, alts:["row_bas","row_haut"]},
-    {id:"lat_poulie", s:3, r:"10-12", rest:90, alts:["tractions"]},
-    {id:"row_haut", s:3, r:"10-12", rest:90},
-    {id:"pullover_p", s:3, r:"12-15", rest:75, alts:["pullover_m"], note:"Bras tendus, sens les dorsaux s'étirer."},
+    {id:"lat_hs", s:3, r:"6-8", bo:"10-12", top:true, rest:150, alts:["tractions","lat_poulie"], note:"Top set : tire avec les coudes. Puis 2 back-off à −10-15 %."},
+    {id:"row_iso", s:3, r:"8-10", rest:120, alts:["row_bas","row_haut"]},
+    {id:"row_haut", s:2, r:"10-12", rest:90},
+    {id:"pullover_p", s:2, r:"12-15", rest:60, alts:["pullover_m"], note:"Bras tendus, sens les dorsaux s'étirer."},
     {id:"oiseau", s:3, r:"15-20", rest:60, alts:["face_pull"], note:"Arrière d'épaule : aide ton développé couché."},
     {id:"curl_incl", s:3, r:"8-12", rest:75, alts:["curl_pupitre"], note:"Bras longs = biceps étirés, idéal."},
-    {id:"curl_marteau", s:3, r:"10-12", rest:60},
+    {id:"curl_marteau", s:2, r:"10-12", rest:60},
     {id:"lombaire", s:3, r:"12-15", rest:60, note:"Lent et contrôlé. On renforce, on ne force pas."}
   ]},
   3: { code:"C", titre:"Pecs & épaules", sous:"Sentir les pecs, protéger l'épaule", ex:[
     {id:"velo", s:1, r:"5", rest:0},
     {id:"face_pull", s:2, r:"15-20", rest:45, note:"Échauffement de l'arrière d'épaule, léger."},
     {id:"pecdeck", s:2, r:"12-15", rest:60, alts:["superfly"], note:"Pré-activation : les pecs travaillent avant que les triceps prennent le relais."},
-    {id:"dc", s:4, r:"4-6", rest:180, alts:["dc_hs","wide_tg"], note:"Omoplates serrées, coudes à ~45°, 1 s de pause sur la poitrine. Raideur à l'arrière de l'épaule → prise un poil plus serrée ou machine."},
+    {id:"dc", s:3, r:"4-6", bo:"8-10", top:true, rest:180, alts:["dc_hs","wide_tg"], note:"Monte par paliers jusqu'au top set, 1-2 reps en réserve, jamais à l'échec (épaule). Omoplates serrées, pause sur la poitrine. Puis 2 back-off à −10-15 %."},
     {id:"incl_hs", s:3, r:"8-10", rest:120, alts:["incl_tg","incl_halt"], note:"Haut des pecs. Pense « coudes vers l'intérieur », pas « pousser avec les mains »."},
-    {id:"visavis", s:3, r:"12-15", rest:75, alts:["superfly","pecdeck"], note:"Contraction 1 s mains jointes."},
-    {id:"dev_ep", s:3, r:"8-10", rest:120},
+    {id:"visavis", s:2, r:"12-15", rest:60, alts:["superfly","pecdeck"], note:"Contraction 1 s mains jointes."},
+    {id:"dev_ep", s:2, r:"8-10", rest:90},
     {id:"lat_raise_m", s:4, r:"12-15", rest:60, alts:["lat_raise_p"], note:"Largeur d'épaules : la priorité en classic."},
-    {id:"tri_overhead", s:3, r:"10-12", rest:75, alts:["tri_poulie"], note:"Tes triceps sont déjà forts : pas plus."}
+    {id:"tri_overhead", s:3, r:"10-12", rest:60, alts:["tri_poulie"], note:"Tes triceps sont déjà forts : pas plus."}
   ]},
   4: { code:"D", titre:"Jambes", sous:"Quadris (genou), ischios, adducteurs", ex:[
     {id:"velo", s:1, r:"5-10", rest:0, note:"Puis tes exos d'activation du kiné."},
     {id:"sdt", s:3, r:"5", rest:150, note:"Technique propre, charge modérée. +5 kg par semaine au maximum si le dos va bien."},
-    {id:"presse_hs", s:4, r:"10-12", rest:120, alts:["presse_tg","presse_g80","belt"], kine:true, note:"Pieds hauts et larges. Descends tant que la douleur reste ≤ 3/10. Au-dessus → stop, remplace par hip thrust."},
+    {id:"presse_hs", s:3, r:"10-12", rest:120, alts:["presse_tg","presse_g80","belt"], kine:true, note:"Pieds hauts et larges. Douleur ≤ 3/10, sinon stop et remplace par hip thrust."},
     {id:"legext_iso", s:4, r:"30-45", rest:60, kine:true, note:"Isométrie : angle et charge donnés par ton kiné. Les reps = secondes tenues."},
     {id:"hip_tg", s:3, r:"10-12", rest:90, alts:["hip_hs"]},
-    {id:"lc_allonge", s:3, r:"10-12", rest:90, alts:["lc_assis","lc_genou"]},
-    {id:"abd_debout", s:3, r:"12-15", rest:60, alts:["abd"]},
-    {id:"add", s:3, r:"12-15", rest:60},
-    {id:"mollet_assis", s:4, r:"12-15", rest:60, alts:["mollet_smith"]},
+    {id:"lc_allonge", s:3, r:"10-12", rest:75, alts:["lc_assis","lc_genou"]},
+    {id:"add", s:2, r:"12-15", rest:60},
+    {id:"mollet_assis", s:3, r:"12-15", rest:60, alts:["mollet_smith"]},
     {id:"crunch_p", s:3, r:"12-15", rest:60, alts:["crunch_hs","crunch_m"]}
   ]},
   5: { code:"E", titre:"Haut du corps", sous:"Dos + pecs en supersets", ex:[
     {id:"velo", s:1, r:"5", rest:0},
-    {id:"tractions", s:4, r:"6-10", rest:90, ss:"1", alts:["lat_hs","lat_poulie"], note:"Superset 1 avec l'exo suivant."},
-    {id:"wide_hs", s:4, r:"8-10", rest:120, ss:"1", alts:["wide_tg","chest_tg","dc_hs"], note:"Prise large = moins de triceps."},
+    {id:"tractions", s:3, r:"6-8", bo:"8-12", top:true, rest:90, ss:"1", alts:["lat_hs","lat_poulie"], note:"Top set (lesté si possible), puis 2 back-off. Superset avec l'exo suivant."},
+    {id:"wide_hs", s:3, r:"8-10", rest:120, ss:"1", alts:["wide_tg","chest_tg","dc_hs"], note:"Prise large = moins de triceps."},
     {id:"row_bas", s:3, r:"10-12", rest:75, ss:"2", alts:["row_iso"]},
     {id:"incl_halt", s:3, r:"8-10", rest:90, ss:"2", alts:["incl_hs","incl_tg"], note:"Descente en 3 s, étire les pecs."},
-    {id:"superfly", s:3, r:"12-15", rest:60, ss:"3", alts:["pecdeck","visavis"]},
-    {id:"pullover_p", s:2, r:"12-15", rest:60, ss:"3", alts:["pullover_m"]},
-    {id:"lat_raise_p", s:3, r:"15-20", rest:60, alts:["lat_raise_m"]},
-    {id:"curl_pupitre", s:3, r:"10-12", rest:60, ss:"4", alts:["curl_incl"]},
+    {id:"superfly", s:2, r:"12-15", rest:60, ss:"3", alts:["pecdeck","visavis"]},
+    {id:"lat_raise_p", s:3, r:"15-20", rest:60, ss:"3", alts:["lat_raise_m"]},
+    {id:"curl_pupitre", s:2, r:"10-12", rest:60, ss:"4", alts:["curl_incl"]},
     {id:"tri_poulie", s:2, r:"12-15", rest:60, ss:"4"},
     {id:"face_pull", s:2, r:"15-20", rest:45}
   ]}

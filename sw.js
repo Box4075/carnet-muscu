@@ -1,5 +1,5 @@
 /* Cache hors-ligne : sert l'appli depuis le cache, met à jour en arrière-plan. */
-const CACHE = "carnet-muscu-1.2.1";
+const CACHE = "carnet-muscu-1.3.0";
 const IMG_CACHE = "carnet-muscu-photos";
 const FILES = ["./", "index.html", "app.js", "program.js", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png", "icons/apple-touch-icon.png",
