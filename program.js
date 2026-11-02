@@ -23,7 +23,8 @@ const EX = {
   mollet_debout:{n:"Mollets debout machine", m:"Technogym Pure Calf", q:"Technogym Pure Calf", img:"https://webapi-prod.technogym.com/dw/image/v2/BFLQ_PRD/on/demandware.static/-/Sites-tg-catalog-master/default/dw41c332bc/product/MG45/pure-strength-calf_MG45_gallery01.jpg?sw=640&q=75"},
   mollet_smith:{n:"Mollets debout Smith + step", m:"Smith machine", q:"smith machine calf raise step", img:"https://webapi-prod.technogym.com/dw/image/v2/BFLQ_PRD/on/demandware.static/-/Sites-tg-catalog-master/default/dwc6540271/product/MB82/MB82-packshot01.jpg?sw=640&q=75"},
   mollet_assis:{n:"Mollets assis", m:"Technogym Pure Seated Calf", q:"Technogym Pure Seated Calf", img:"https://webapi-prod.technogym.com/dw/image/v2/BFLQ_PRD/on/demandware.static/-/Sites-tg-catalog-master/default/dw282d9ddd/product/MG46/pure-strength-seated-calf_MG46_gallery01.jpg?sw=640&q=75"},
-  crunch_m:    {n:"Crunch machine", m:"Technogym / Hammer Strength", q:"Technogym Selection abdominal crunch", img:"https://webapi-prod.technogym.com/dw/image/v2/BFLQ_PRD/on/demandware.static/-/Sites-tg-catalog-master/default/dw16dbc2c5/product/MNBP/selection_pro_abdominal_crunch_related_1.jpg?sw=640&q=75"},
+  crunch_m:    {n:"Crunch machine", m:"Technogym Selection Abdominal Crunch", q:"Technogym Selection abdominal crunch", img:"https://webapi-prod.technogym.com/dw/image/v2/BFLQ_PRD/on/demandware.static/-/Sites-tg-catalog-master/default/dw16dbc2c5/product/MNBP/selection_pro_abdominal_crunch_related_1.jpg?sw=640&q=75"},
+  crunch_hs:   {n:"Crunch machine (chargée en disques)", m:"Hammer Strength Abdominal / Oblique Crunch", q:"Hammer Strength abdominal oblique crunch", img:"https://www.lifefitness.com/Kentico13CoreBase/media/LFMedia/LifeFitnessImages/Equipment/Strength/Plate-Loaded/Abdominal%20Oblique%20Crunch/Strength-PlateLoaded-AbObCr-10.png?w=640"},
   crunch_p:    {n:"Crunch à genoux à la poulie", m:"Poulie haute + corde", q:"kneeling cable crunch", img:"https://webapi-prod.technogym.com/dw/image/v2/BFLQ_PRD/on/demandware.static/-/Sites-tg-catalog-master/default/dw9bd0e705/product/MQ0F/MQ0F_gallery01.jpg?sw=640&q=75"},
   releves:     {n:"Relevés de jambes", m:"Chaise romaine", q:"captain's chair leg raise", img:"https://webapi-prod.technogym.com/dw/image/v2/BFLQ_PRD/on/demandware.static/-/Sites-tg-catalog-master/default/dwed3dffe7/product/PA02-ANV0GG/PA02_verticalbench_element_related_01_6.jpg?sw=640&q=75"},
   lombaire:    {n:"Extensions lombaires 45°", m:"Banc à 45°", q:"45 degree back extension", img:"https://webapi-prod.technogym.com/dw/image/v2/BFLQ_PRD/on/demandware.static/-/Sites-tg-catalog-master/default/dw79ef26b5/product/PG05-NBV000/PG05_purestrength_lowerbackbench_related_01_5.jpg?sw=640&q=75"},
@@ -48,7 +49,7 @@ const EX = {
   incl_halt:   {n:"Développé incliné haltères", m:"Banc incliné", q:"incline dumbbell press", img:"https://webapi-prod.technogym.com/dw/image/v2/BFLQ_PRD/on/demandware.static/-/Sites-tg-catalog-master/default/dwd02f6ccd/product/PG01/packshot_1_1_white.jpg?sw=640&q=75"},
   incl_hs:     {n:"Presse inclinée convergente", m:"Hammer Strength Incline Press", q:"Hammer Strength Iso-Lateral Incline Press", img:"https://www.lifefitness.com/Kentico13CoreBase/media/LFMedia/LifeFitnessImages/Equipment/Strength/Plate-Loaded/Iso%20Lateral%20Incline%20Press/Strength-PlateLoaded-IsoLateralInclinePress-8.png?w=640"},
   wide_hs:     {n:"Presse pecs prise large", m:"Hammer Strength Wide Chest", q:"Hammer Strength Iso-Lateral Wide Chest", img:"https://www.lifefitness.com/Kentico13CoreBase/media/LFMedia/LifeFitnessImages/Equipment/Strength/Plate-Loaded/Wide%20Chest/Strength-PlateLoaded-IsoLateral-WideChest-Thumbnail-1.png?w=640"},
-  chest_tg:    {n:"Chest press", m:"Technogym", q:"Technogym chest press", img:"https://webapi-prod.technogym.com/dw/image/v2/BFLQ_PRD/on/demandware.static/-/Sites-tg-catalog-master/default/dwc98c1663/product/MG05/pure-strength-chest-press_MG05_gallery01.jpg?sw=640&q=75"},
+  chest_tg:    {n:"Chest press convergente", m:"Technogym Pure Strength Chest Press", q:"Technogym chest press", img:"https://webapi-prod.technogym.com/dw/image/v2/BFLQ_PRD/on/demandware.static/-/Sites-tg-catalog-master/default/dwc98c1663/product/MG05/pure-strength-chest-press_MG05_gallery01.jpg?sw=640&q=75"},
   dev_ep:      {n:"Développé épaules machine", m:"Hammer Strength Shoulder Press", q:"Hammer Strength Iso-Lateral Shoulder Press", img:"https://www.lifefitness.com/Kentico13CoreBase/media/LFMedia/LifeFitnessImages/Equipment/Strength/Plate-Loaded/Iso-Lateral%20Shoulder%20Press/Strength-PlateLoaded-IsoLateralShoulderPress-Render-2.png?w=640"},
   lat_raise_m: {n:"Élévations latérales machine", m:"Hammer Strength / Gym80", q:"Hammer Strength lateral raise machine", img:"https://www.lifefitness.com/Kentico13CoreBase/media/LFMedia/LifeFitnessImages/Equipment/Strength/Plate-Loaded/Lateral%20Raise/Strength-PlateLoaded-LateralRaise-Thumbnail-1.png?w=640"},
   lat_raise_p: {n:"Élévations latérales poulie", m:"Poulie basse", q:"cable lateral raise", img:"https://webapi-prod.technogym.com/dw/image/v2/BFLQ_PRD/on/demandware.static/-/Sites-tg-catalog-master/default/dw420b5015/product/MB430N0-AN00GGGP/dual_adjustable_pulley_performance_anthracite_black.jpg?sw=640&q=75"},
@@ -67,7 +68,7 @@ const PROGRAMME = {
     {id:"add", s:3, r:"12-15", rest:75},
     {id:"abd", s:3, r:"15-20", rest:60, alts:["abd_debout"], note:"Le moyen fessier stabilise ton genou."},
     {id:"mollet_debout", s:4, r:"10-15", rest:75, alts:["mollet_smith"], note:"Pause 2 s en bas, étiré."},
-    {id:"crunch_m", s:3, r:"12-15", rest:60, alts:["crunch_p"]},
+    {id:"crunch_m", s:3, r:"12-15", rest:60, alts:["crunch_hs","crunch_p"]},
     {id:"releves", s:3, r:"10-15", rest:60}
   ]},
   2: { code:"B", titre:"Dos & biceps", sous:"Largeur, épaisseur, arrière d'épaule", ex:[
@@ -103,7 +104,7 @@ const PROGRAMME = {
     {id:"abd_debout", s:3, r:"12-15", rest:60, alts:["abd"]},
     {id:"add", s:3, r:"12-15", rest:60},
     {id:"mollet_assis", s:4, r:"12-15", rest:60, alts:["mollet_smith"]},
-    {id:"crunch_p", s:3, r:"12-15", rest:60, alts:["crunch_m"]}
+    {id:"crunch_p", s:3, r:"12-15", rest:60, alts:["crunch_hs","crunch_m"]}
   ]},
   5: { code:"E", titre:"Haut du corps", sous:"Dos + pecs en supersets", ex:[
     {id:"velo", s:1, r:"5", rest:0},

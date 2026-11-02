@@ -1,5 +1,5 @@
 /* Carnet Muscu — appli web installable, données stockées sur le téléphone (localStorage). */
-const APP_VERSION = "1.1.0";
+const APP_VERSION = "1.2.0";
 const KEY = "carnet-muscu-v1";
 const $ = s => document.querySelector(s);
 const el = (tag, props = {}, ...kids) => {
