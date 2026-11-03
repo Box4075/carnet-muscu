@@ -1,5 +1,5 @@
 /* Carnet Muscu — appli web installable, données stockées sur le téléphone (localStorage). */
-const APP_VERSION = "1.3.0";
+const APP_VERSION = "1.4.0";
 const KEY = "carnet-muscu-v1";
 const $ = s => document.querySelector(s);
 const el = (tag, props = {}, ...kids) => {
@@ -171,6 +171,9 @@ function viewSeance() {
   v.append(hero);
 
   P.ex.forEach((slot, i) => v.append(exCard(slot, i)));
+  const ses = S.seances[UI.date];
+  if (ses && ses.jour === UI.jour && ses.fin) v.append(recapCard(UI.date));
+  else v.append(el("button", {class: "btn primary", style: "padding:14px;font-size:1.05rem", text: "Terminer la séance", onclick: () => finishSession()}));
   v.append(el("p", {class: "muted small", style: "text-align:center"}, "Tout s'enregistre au fur et à mesure sur ton téléphone."));
   keepAwake();
 }
@@ -232,7 +235,7 @@ function exCard(slot, i) {
         if (num(s.reps) == null && ph && ph.reps) s.reps = ph.reps;
         if (!num(s.kg)) { const kp = num((document.getElementById(`${slot.id}-${si}-kg`) || {}).placeholder); if (kp) s.kg = String(kp); }
       }
-      s.ok = !s.ok; save();
+      s.ok = !s.ok; if (s.ok && !S.seances[UI.date].debut) S.seances[UI.date].debut = Date.now(); save();
       if (s.ok) {
         const lastSetOfSS = !slot.ss || !PROGRAMME[UI.jour].ex.some((x, k) => k > PROGRAMME[UI.jour].ex.indexOf(slot) && x.ss === slot.ss);
         if (lastSetOfSS) startRest(slot.rest, E.n);
@@ -294,6 +297,44 @@ function openPhoto(E) {
   document.body.append(box);
 }
 
+/* ---------- fin de séance / récap ---------- */
+function sessionStats(date) {
+  const ses = S.seances[date]; if (!ses) return null;
+  let series = 0, tonnage = 0; const records = [];
+  Object.values(ses.items || {}).forEach(it => {
+    const sets = setsOf(it); if (!sets.length || EX[it.ex]?.unit === "min") return;
+    series += sets.length;
+    sets.forEach(x => tonnage += (num(x.kg) || 0) * (num(x.reps) || 0));
+    const best = Math.max(...sets.map(x => num(x.kg) || 0));
+    const prev = Object.keys(S.seances).filter(d => d < date).flatMap(d => Object.values(S.seances[d].items || {}).filter(i => i.ex === it.ex).flatMap(i => setsOf(i).map(x => num(x.kg) || 0)));
+    if (best > 0 && prev.length && best > Math.max(...prev)) records.push(`${EX[it.ex].n} : ${fmtNum(best)} kg`);
+  });
+  const duree = ses.debut && ses.fin ? Math.round((ses.fin - ses.debut) / 60000) : null;
+  return {series, tonnage, records, duree};
+}
+function finishSession() {
+  const ses = S.seances[UI.date];
+  if (!ses || ses.jour !== UI.jour || !Object.values(ses.items).some(i => setsOf(i).length)) { toast("Aucune série notée pour cette séance"); return; }
+  ses.fin = Date.now(); save(true); stopRest();
+  try { navigator.vibrate && navigator.vibrate(200); } catch (e) {}
+  toast("Séance terminée 💪"); render(); setTimeout(() => { const r = $("#recap"); r && r.scrollIntoView({behavior: "smooth"}); }, 50);
+}
+function recapCard(date) {
+  const ses = S.seances[date], st = sessionStats(date), P = PROGRAMME[ses.jour];
+  const total = P.ex.filter(x => EX[x.id].unit !== "min").reduce((a, x) => a + x.s, 0);
+  const c = el("div", {class: "card", id: "recap"},
+    el("div", {class: "row between"}, el("h2", {text: "Séance terminée ✓"}), el("span", {class: `chip p${ses.jour}`, text: P.code})),
+    el("div", {class: "stats"},
+      el("div", {class: "stat"}, el("span", {class: "label", text: "Séries"}), el("span", {class: "v num", text: `${st.series}/${total}`})),
+      el("div", {class: "stat"}, el("span", {class: "label", text: "Tonnage"}), el("span", {class: "v num", text: `${fmtNum(st.tonnage / 1000)} t`})),
+      el("div", {class: "stat"}, el("span", {class: "label", text: "Durée"}), el("span", {class: "v num", text: st.duree ? `${Math.floor(st.duree / 60)}h${pad(st.duree % 60)}` : "–"}))));
+  if (st.records.length) c.append(el("div", {}, el("span", {class: "chip up", text: `🏆 ${st.records.length} record${st.records.length > 1 ? "s" : ""}`}), el("ul", {class: "rules", style: "margin-top:6px"}, st.records.map(r => el("li", {text: r})))));
+  c.append(el("div", {class: "row"},
+    el("button", {class: "btn", text: "Voir ma progression", onclick: () => show("progres")}),
+    el("button", {class: "btn ghost sm", text: "Rouvrir la séance", onclick: () => { delete S.seances[date].fin; save(true); render(); }})));
+  return c;
+}
+
 /* ---------- vue programme ---------- */
 function viewProgramme() {
   const v = $("#view"); v.textContent = "";
@@ -335,7 +376,7 @@ function chart(points, unit) {
   let x0 = Math.min(...points.map(p => p.t)), x1 = Math.max(...points.map(p => p.t));
   if (x0 === x1) { x0 -= 3 * 864e5; x1 += 3 * 864e5; }
   let y0 = Math.min(...points.map(p => p.y)), y1 = Math.max(...points.map(p => p.y));
-  const span = Math.max(y1 - y0, 2); y0 -= span * .15; y1 += span * .15; if (y0 < 0) y0 = 0;
+  const span = Math.max(y1 - y0, y1 * .1, 2); y0 -= span * .15; y1 += span * .15; if (y0 < 0) y0 = 0;
   const st = niceStep((y1 - y0) / 4); y0 = Math.floor(y0 / st) * st; y1 = Math.ceil(y1 / st) * st;
   const sx = t => L + (t - x0) / (x1 - x0) * (W - L - Rr), sy = v => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B);
   let g = "";
@@ -362,10 +403,23 @@ function historyOf(exId) {
 }
 function viewProgres() {
   const v = $("#view"); v.textContent = "";
+  const dates = Object.keys(S.seances).filter(d => Object.values(S.seances[d].items || {}).some(i => setsOf(i).length)).sort().reverse();
+  if (!dates.length) { v.append(el("div", {class: "empty"}, "Pas encore de données. Note tes séries dans l'onglet Séance (valide chaque série avec ✓) et elles apparaîtront ici.")); return; }
+  const sesCard = el("div", {class: "card list"}, el("h3", {text: "Mes séances"}));
+  dates.slice(0, 15).forEach(d => {
+    const ses = S.seances[d], P = PROGRAMME[ses.jour] || {code: "?", titre: ""}, st = sessionStats(d);
+    sesCard.append(el("div", {class: "item"},
+      el("span", {class: `chip p${ses.jour}`, text: P.code}),
+      el("div", {class: "grow"}, el("div", {style: "font-weight:600", text: `${fmtDate(d)} · ${P.titre}`}),
+        el("div", {class: "muted small", text: `${st.series} série${st.series > 1 ? "s" : ""} · ${fmtNum(st.tonnage / 1000)} t${st.duree ? ` · ${st.duree} min` : ""}${st.records.length ? ` · 🏆 ${st.records.length}` : ""}${ses.fin ? "" : " · en cours"}`})),
+      el("button", {class: "btn sm", text: "Ouvrir", onclick: () => { UI.date = d; UI.jour = ses.jour; show("seance"); }})));
+  });
+  v.append(sesCard);
   const withData = Object.keys(EX).filter(id => EX[id].unit !== "min" && historyOf(id).length);
-  if (!withData.length) { v.append(el("div", {class: "empty"}, "Pas encore de données. Note tes séries dans l'onglet Séance et tes courbes apparaîtront ici.")); return; }
+  if (!withData.length) return;
   if (!UI.exSel || !withData.includes(UI.exSel)) UI.exSel = withData[0];
   const sel = el("select", {id: "exSelect", "aria-label": "Exercice"});
+  v.append(el("h2", {text: "Courbe par exercice", style: "margin-top:6px"}));
   withData.forEach(id => sel.append(el("option", {value: id, selected: id === UI.exSel, text: EX[id].n + " — " + EX[id].m})));
   sel.onchange = () => { UI.exSel = sel.value; render(); };
   v.append(el("div", {class: "card"}, el("span", {class: "label", text: "Exercice"}), sel));
